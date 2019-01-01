@@ -13,6 +13,33 @@ w, h = infoObject.current_w, infoObject.current_h
 screen = pygame.display.set_mode((w,h))
 pygame.display.set_caption('Boring Game!')
 
+#Start Page
+
+black=(0,0,0)
+end_it=False
+play = pygame.image.load("resources/images/play.png")
+while (end_it==False):
+    screen.fill(black)
+    pygame.font.init()
+    font1 = pygame.font.Font("resources/myfont.ttf", 72)
+    text1 = font1.render("Boring Game!", True, (255, 255, 255))
+    textRect1 = text1.get_rect()
+    textRect1.centerx = screen.get_rect().centerx
+    playRect = play.get_rect()
+    playRect.centerx = screen.get_rect().centerx
+    playRect.centery = screen.get_rect().centery
+    for e in pygame.event.get():
+        if e.type==pygame.QUIT:
+            pygame.quit()
+            exit(0)
+        if e.type==MOUSEBUTTONDOWN:
+            x, y = pygame.mouse.get_pos()
+            if playRect.collidepoint(x, y):
+                end_it=True
+    screen.blit(text1,textRect1)
+    screen.blit(play, playRect)
+    pygame.display.flip()
+
 #Images
 player = pygame.image.load("resources/images/soldier1.png")
 grass = pygame.image.load("resources/images/grass.jpg")
@@ -21,6 +48,7 @@ arrow = pygame.image.load("resources/images/bulletraja.png")
 badguyimg = pygame.image.load("resources/images/zombie.png")
 healthbar = pygame.image.load("resources/images/healthbar.png")
 health = pygame.image.load("resources/images/health.png")
+replay = pygame.image.load("resources/images/replay.png")
 
 pygame.mixer.init()
 #Music
@@ -96,7 +124,8 @@ while running:
     if badguy_kill == speed_factor:#speed function
     	if bg_vel < 32:
             bg_vel *= 2
-            arrow_vel = math.sqrt((4*w*w/(h*h))+1)*bg_vel #get a good equation
+            #To understand how the below equation came make time same at halfway
+            arrow_vel = math.sqrt(4*w*w+h*h)*bg_vel/h #mathematical equation --> more than required speed since components not broken
             speed_factor -= 10
             speed_factor = badguy_kill + speed_factor
         
@@ -127,7 +156,7 @@ while running:
         screen.blit(badguyimg, badguy)
 
     index1=0
-    for bullet in arrows:#
+    for bullet in arrows:
         bullrect=pygame.Rect(arrow.get_rect())
         bullrect.left=bullet[1]
         bullrect.top=bullet[2]
@@ -225,13 +254,23 @@ if exitcode==0:
     textRect1.centerx = screen.get_rect().centerx
     textRect1.centery = screen.get_rect().centery-72
     font = pygame.font.Font(None, 24)
+    text2 = font.render("Score: "+str(badguy_kill), True, (255,0,0))
+    textRect2 = text2.get_rect()
+    textRect2.centerx = screen.get_rect().centerx
+    textRect2.centery = screen.get_rect().centery+24
     text = font.render("Accuracy: "+"{0:.2f}".format(round(accuracy,2))+"%", True, (255,0,0))
     textRect = text.get_rect()
     textRect.centerx = screen.get_rect().centerx
-    textRect.centery = screen.get_rect().centery+24
+    textRect.centery = screen.get_rect().centery+48
+    replayRect = replay.get_rect()
+    replayRect.centerx = screen.get_rect().centerx
+    replayRect.centery = screen.get_rect().centery+100
     screen.fill((128, 0, 0))
     screen.blit(text1,textRect1)
+    screen.blit(text2, textRect2)
     screen.blit(text, textRect)
+    screen.blit(replay, replayRect)
+
 else:
     pygame.font.init()
     font1 = pygame.font.Font("resources/myfont.ttf", 72)
@@ -240,17 +279,26 @@ else:
     textRect1.centerx = screen.get_rect().centerx
     textRect1.centery = screen.get_rect().centery-72
     font = pygame.font.Font(None, 24)
+    text2 = font.render("Score: "+str(badguy_kill), True, (0, 255,0))
+    textRect2 = text2.get_rect()
+    textRect2.centerx = screen.get_rect().centerx
+    textRect2.centery = screen.get_rect().centery+24
     text = font.render("Accuracy: "+"{0:.2f}".format(round(accuracy,2))+"%", True, (0,255,0))
     textRect = text.get_rect()
     textRect.centerx = screen.get_rect().centerx
     textRect.centery = screen.get_rect().centery+24
     screen.fill((0, 128, 0))
     screen.blit(text1,textRect1)
+    screen.blit(text2, textRect2)
     screen.blit(text, textRect)
 while 1:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             exit(0)
+        if e.type==MOUSEBUTTONDOWN:
+            x, y = pygame.mouse.get_pos()
+            if replayRect.collidepoint(x, y):#wont work until broken into functions
+                running=1
     pygame.display.flip()
 
