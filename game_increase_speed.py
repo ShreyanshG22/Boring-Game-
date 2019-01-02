@@ -229,13 +229,13 @@ def game(screen):
 		    elif pygame.key.get_pressed()[pygame.K_d]:
 		        keys[3]=True
 		    if pygame.key.get_pressed()[pygame.K_LEFT]:
-                    	rot += 5
+                    	rot += 10
         		if rot > 360:
-            			rot = 5
+            			rot = 10
                     elif pygame.key.get_pressed()[pygame.K_RIGHT]:
-                    	rot -= 5
+                    	rot -= 10
         		if rot < 0:
-            			rot = 355
+            			rot = 350
 		    if e.key == pygame.K_p:
 		    	if state == RUN:
 		        	state = PAUSE
@@ -257,13 +257,13 @@ def game(screen):
     
 	       #Move player
 		if keys[0]:
-		    playerpos[1]-=5
+		    playerpos[1]-=10
 		elif keys[2]:
-		   playerpos[1]+=5
+		   playerpos[1]+=10
 		if keys[1]:
-		    playerpos[0]-=5
+		    playerpos[0]-=10
 		elif keys[3]:
-		    playerpos[0]+=5
+		    playerpos[0]+=10
 
 	    if badguy_kill == 1000:#maximum score
 		running=0
