@@ -4,6 +4,7 @@ import math
 import random
 
 ################# Create Levels<----Remaining ####################
+RUN, PAUSE = 1, 0
 
 def start(screen):
 	#Start Page
@@ -63,7 +64,7 @@ def accuracymeter(screen, accuracy):
 def game(screen):
 	w, h = pygame.display.get_surface().get_size()
 
-	player = pygame.image.load("resources/images/soldier1.png")
+	player = pygame.image.load("resources/images/soldierKV.png")
 	grass = pygame.image.load("resources/images/grass.jpg")
 	castle = pygame.image.load("resources/images/ship.png")
 	arrow = pygame.image.load("resources/images/bulletraja.png")
@@ -84,6 +85,7 @@ def game(screen):
 	pygame.mixer.music.set_volume(0.25)
 
 	#Variables
+	state = RUN
 	keys = [False, False, False, False]
 	playerpos=[(w-180)/2,h-244]
 	acc=[0,0]
@@ -100,107 +102,117 @@ def game(screen):
 	accuracy = 0.0
 	running = 1
 	exitcode = 0
+	rot = 0
 
 	pygame.key.set_repeat(50,50) #Continuos Key input
 	
 	#Game loop
 	while running:
-	    badtimer -= 1
-	    screen.fill(0) #clearing the screen
+	    if state == RUN:
+		    badtimer -= 1
+		    screen.fill(0) #clearing the screen
 
-	    #1. Draws the game state to the screen
-	    position = pygame.mouse.get_pos()
-	    angle = math.atan2(position[1]-(playerpos[1]),position[0]-(playerpos[0]))
-	    playerrot = pygame.transform.rotate(player, 360-angle*57.29) #player rotation
-	    playerpos1 = (playerpos[0]-playerrot.get_rect().width/2, playerpos[1]-playerrot.get_rect().height/2)
+		    #1. Draws the game state to the screen
+		    position = pygame.mouse.get_pos()
+		    playerrot = pygame.transform.rotate(player, rot) #player rotation
+		    playerpos1 = (playerpos[0]-playerrot.get_rect().width/2, playerpos[1]-playerrot.get_rect().height/2)
 
-	    #creating the environment
-	    for x in range(w/grass.get_width()+1):
-		for y in range(h/grass.get_height()+1):
-		    screen.blit(grass,(x*100,y*100))
-	    for x in range(30,w-180,105):
-		screen.blit(castle,(x,h-180))
-	    screen.blit(playerrot, playerpos1)
+		    #creating the environment
+		    for x in range(w/grass.get_width()+1):
+			for y in range(h/grass.get_height()+1):
+			    screen.blit(grass,(x*100,y*100))
+		    for x in range(30,w-180,105):
+			screen.blit(castle,(x,h-180))
+		    screen.blit(playerrot, playerpos1)
 
-	    #shooting the arrow
-	    for bullet in arrows:
-		index=0
-		#velocity of arrow
-		velx=math.cos(bullet[0])*arrow_vel
-		vely=math.sin(bullet[0])*arrow_vel
-		bullet[1]+=velx
-		bullet[2]+=vely
-		if bullet[1]<-64 or bullet[1]>w or bullet[2]<-64 or bullet[2]>h:
-		    arrows.pop(index)
-		index+=1
-		for projectile in arrows:
-		    arrow1 = pygame.transform.rotate(arrow, 360-projectile[0]*57.29)
-		    screen.blit(arrow1, (projectile[1], projectile[2]))
+		    #shooting the arrow
+		    for bullet in arrows:
+			index=0
+			#velocity of arrow
+			velx=math.sin(bullet[0]*math.pi/180)*arrow_vel
+			vely=math.cos(bullet[0]*math.pi/180)*arrow_vel
+			bullet[1]-=velx
+			bullet[2]-=vely
+			if bullet[1]<-64 or bullet[1]>w or bullet[2]<-64 or bullet[2]>h:
+			    arrows.pop(index)
+			index+=1
+		    for projectile in arrows:
+			arrow1 = pygame.transform.rotate(arrow, projectile[0]+90)
+			screen.blit(arrow1, (projectile[1], projectile[2]))
 
-	    #speed function
-	    if badguy_kill == speed_factor:
-	    	if bg_vel < 32:
-		    bg_vel *= 2
-		    #To understand how the below equation came make time same at halfway
-		    arrow_vel = math.sqrt(4*w*w+h*h)*bg_vel/h #mathematical equation --> more than required speed since components not broken
-		    speed_factor -= 10
-		    speed_factor = badguy_kill + speed_factor
-		
-	    #increase speed of generation
-	    if badtimer<=0:
-		badguys.append([random.randint(50,w-180), 0])
-		badrect.append(pygame.Rect(badguyimg.get_rect()))
-		badtimer=100-(badtimer1*2)#Main Line
-		if badtimer1>=42:
-		    badtimer1=42
-		else:
-		    badtimer1+=5
+		    #speed function
+		    if badguy_kill == speed_factor:
+		    	if bg_vel < 32:
+			    bg_vel *= 2
+			    #get rotation vel
+			    #To understand how the below equation came make time same at halfway
+			    arrow_vel = math.sqrt(4*w*w+h*h)*bg_vel/h #mathematical equation --> more than required speed since components not broken
+			    speed_factor -= 10
+			    speed_factor = badguy_kill + speed_factor
+			
+		    #increase speed of generation
+		    if badtimer<=0:
+			badguys.append([random.randint(50,w-180), 0])
+			badrect.append(pygame.Rect(badguyimg.get_rect()))
+			badtimer=100-(badtimer1*2)#Main Line
+			if badtimer1>=42:
+			    badtimer1=42
+			else:
+			    badtimer1+=5
 
-	    index=-1
-	    for n in range(len(badguys)):
-		badguys[n][1]+=bg_vel #velocity of badguys
-		badrect[n]=pygame.Rect(badguyimg.get_rect())
-		badrect[n].bottom=badguys[n][1]
-		badrect[n].left=badguys[n][0]
-		index+=1
-		if badrect[n].bottom>(h-244):
-		    hit.play()
-		    healthvalue -= random.randint(5,20)
-		    badguys.pop(index)
-		    badrect.pop(index)
-		    break
-	    for badguy in badguys:
-		screen.blit(badguyimg, badguy)
+		    index=-1
+		    for n in range(len(badguys)):
+			badguys[n][1]+=bg_vel #velocity of badguys
+			badrect[n]=pygame.Rect(badguyimg.get_rect())
+			badrect[n].bottom=badguys[n][1]
+			badrect[n].left=badguys[n][0]
+			index+=1
+			if badrect[n].bottom>(h-244):
+			    hit.play()
+			    healthvalue -= random.randint(5,20)
+			    badguys.pop(index)
+			    badrect.pop(index)
+			    break
+		    for badguy in badguys:
+			screen.blit(badguyimg, badguy)
 
-	    index1=0
-	    for bullet in arrows:
-		bullrect=pygame.Rect(arrow.get_rect())
-		bullrect.left=bullet[1]
-		bullrect.top=bullet[2]
-		for bad in badrect:
-		    if bullrect.colliderect(bad):
-		        enemy.play()
-		        acc[0]+=1
-		        remove_index = badrect.index(bad)
-		        badguys.pop(remove_index)
-		        badrect.pop(remove_index)
-		        badguy_kill+=1
-		        arrows.pop(index1)
-		index1+=1
+		    index1=0
+		    for bullet in arrows:
+			bullrect=pygame.Rect(arrow.get_rect())
+			bullrect.left=bullet[1]
+			bullrect.top=bullet[2]
+			for bad in badrect:
+			    if bullrect.colliderect(bad):
+				enemy.play()
+				acc[0]+=1
+				remove_index = badrect.index(bad)
+				badguys.pop(remove_index)
+				badrect.pop(remove_index)
+				badguy_kill+=1
+				arrows.pop(index1)
+			index1+=1
 
-	    
-	    timer(screen) #Timer
-	    scoreboard(screen, badguy_kill) #Scoreboard
-	    accuracymeter(screen, accuracy) #Accuracy
+		    
+		    timer(screen) #Timer
+		    scoreboard(screen, badguy_kill) #Scoreboard
+		    accuracymeter(screen, accuracy) #Accuracy
 
-	    #health
-	    screen.blit(healthbar, (5,5))
-	    for health1 in range(healthvalue):
-		screen.blit(health, (health1+8,8))
+		    #health
+		    screen.blit(healthbar, (5,5))
+		    for health1 in range(healthvalue):
+			screen.blit(health, (health1+8,8))
 
+	    elif state == PAUSE:
+	    	pygame.font.init()
+		font1 = pygame.font.Font("resources/myfont.ttf", 72)
+		text1 = font1.render("Paused", True, (0, 128, 0))
+		textRect1 = text1.get_rect()
+		textRect1.centerx = screen.get_rect().centerx
+		textRect1.centery = screen.get_rect().centery-72
+	    	screen.blit(text1, textRect1)
+	    	
 	    #2. Updates the game state
 	    pygame.display.flip()
-
 	    #3. Handles events 
 	    #controls
 	    for e in pygame.event.get():
@@ -216,6 +228,19 @@ def game(screen):
 		        keys[2]=True
 		    elif pygame.key.get_pressed()[pygame.K_d]:
 		        keys[3]=True
+		    if pygame.key.get_pressed()[pygame.K_LEFT]:
+                    	rot += 10
+        		if rot > 360:
+            			rot = 10
+                    elif pygame.key.get_pressed()[pygame.K_RIGHT]:
+                    	rot -= 10
+        		if rot < 0:
+            			rot = 350
+		    if e.key == pygame.K_p:
+		    	if state == RUN:
+		        	state = PAUSE
+		        else:
+		        	state = RUN
 		if e.type == pygame.KEYUP:
 		    if e.key==pygame.K_w:
 		        keys[0]=False
@@ -225,21 +250,20 @@ def game(screen):
 		        keys[2]=False
 		    elif e.key==pygame.K_d:
 		        keys[3]=False
-		if e.type==pygame.MOUSEBUTTONDOWN:
-		    shoot.play()
-		    position=pygame.mouse.get_pos()
-		    acc[1]+=1
-		    arrows.append([math.atan2(position[1]-(playerpos1[1]+32),position[0]-(playerpos1[0]+26)),playerpos1[0]+32,playerpos1[1]+32])
-
+		    if e.key==pygame.K_SPACE:
+			    shoot.play()
+			    acc[1]+=1
+			    arrows.append([rot,playerpos1[0]+32,playerpos1[1]+32])
+    
 	       #Move player
 		if keys[0]:
-		    playerpos[1]-=5
+		    playerpos[1]-=10
 		elif keys[2]:
-		   playerpos[1]+=5
+		   playerpos[1]+=10
 		if keys[1]:
-		    playerpos[0]-=5
+		    playerpos[0]-=10
 		elif keys[3]:
-		    playerpos[0]+=5
+		    playerpos[0]+=10
 
 	    if badguy_kill == 1000:#maximum score
 		running=0
