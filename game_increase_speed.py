@@ -71,7 +71,7 @@ def accuracymeter(screen, accuracy):
 def game(screen):
 	w, h = pygame.display.get_surface().get_size()
 
-	player = pygame.image.load("resources/images/soldier1.png")
+	player = pygame.image.load("resources/images/soldierKV.png")
 	grass = pygame.image.load("resources/images/grass.jpg")
 	spaceship = pygame.image.load("resources/images/ship.png")
 	arrow = pygame.image.load("resources/images/bulletraja.png")
@@ -209,7 +209,6 @@ def game(screen):
 		    screen.blit(healthbar, (5,5))
 		    for health1 in range(healthvalue):
 			screen.blit(health, (health1+8,8))
-
 	    elif state == PAUSE:
 	    	pygame.font.init()
 	        for x in range(w/grass.get_width()+1):
@@ -275,7 +274,6 @@ def game(screen):
 			screen.blit(text2, restartRect)
 			screen.blit(text3, exitRect)
 			pygame.display.flip()
-
 	    #2. Updates the game state
 	    pygame.display.flip()
 	    #3. Handles events 
@@ -306,30 +304,15 @@ def game(screen):
 		    if e.key == pygame.K_ESCAPE:
 	        	state = ESCAPE
 		    		
-		if e.type == pygame.KEYUP:
-		    if e.key==pygame.K_w:
-		        keys[0]=False
-		    elif e.key==pygame.K_a:
-		        keys[1]=False
-		    elif e.key==pygame.K_s:
-		        keys[2]=False
-		    elif e.key==pygame.K_d:
-		        keys[3]=False
-		if e.type==pygame.MOUSEBUTTONDOWN:
-		    shoot.play()
-		    position=pygame.mouse.get_pos()
-		    acc[1]+=1
-		    arrows.append([math.atan2(position[1]-(playerpos1[1]+32),position[0]-(playerpos1[0]+26)),playerpos1[0]+32,playerpos1[1]+32])
-
 	       #Move player
 		if keys[0]:
-		    playerpos[1]-=5
+		    playerpos[1]-=10
 		elif keys[2]:
-		   playerpos[1]+=5
+		   playerpos[1]+=10
 		if keys[1]:
-		    playerpos[0]-=5
+		    playerpos[0]-=10
 		elif keys[3]:
-		    playerpos[0]+=5
+		    playerpos[0]+=10
 
 	    if badguy_kill == 1000:#maximum score
 		running=0
