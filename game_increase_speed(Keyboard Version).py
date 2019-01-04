@@ -3,10 +3,9 @@ from pygame.locals import *
 import math
 import random
 
-################# Create Levels<----Remaining ####################
-RUN, PAUSE = 1, 0
-
+RUN, PAUSE, ESCAPE = 1, 0, 2
 def start(screen):
+	w, h = pygame.display.get_surface().get_size()#get screen size
 	#Start Page
 	black=(0,0,0)
 	end_it=False
@@ -25,6 +24,14 @@ def start(screen):
 			if e.type==pygame.QUIT:
 				pygame.quit()
 				exit(0)
+			if e.type is KEYDOWN:
+				if e.key == K_SPACE:
+					end_it=True
+				if e.key == K_f:
+    					if screen.get_flags() & FULLSCREEN:
+        					pygame.display.set_mode((w,h))
+    					else:
+        					pygame.display.set_mode((w,h), FULLSCREEN)
 			if e.type==MOUSEBUTTONDOWN:
 				x, y = pygame.mouse.get_pos()
 				if playRect.collidepoint(x, y):
@@ -66,7 +73,7 @@ def game(screen):
 
 	player = pygame.image.load("resources/images/soldierKV.png")
 	grass = pygame.image.load("resources/images/grass.jpg")
-	castle = pygame.image.load("resources/images/ship.png")
+	spaceship = pygame.image.load("resources/images/ship.png")
 	arrow = pygame.image.load("resources/images/bulletraja.png")
 	badguyimg = pygame.image.load("resources/images/zombie.png")
 	healthbar = pygame.image.load("resources/images/healthbar.png")
@@ -87,7 +94,7 @@ def game(screen):
 	#Variables
 	state = RUN
 	keys = [False, False, False, False]
-	playerpos=[(w-180)/2,h-244]
+	playerpos=[(w-180)/2,h-186]
 	acc=[0,0]
 	arrows=[]
 	badtimer=1
@@ -121,8 +128,8 @@ def game(screen):
 		    for x in range(w/grass.get_width()+1):
 			for y in range(h/grass.get_height()+1):
 			    screen.blit(grass,(x*100,y*100))
-		    for x in range(30,w-180,105):
-			screen.blit(castle,(x,h-180))
+		    for x in range(100,w,105):
+			screen.blit(spaceship,(x,h-120))
 		    screen.blit(playerrot, playerpos1)
 
 		    #shooting the arrow
@@ -143,7 +150,8 @@ def game(screen):
 		    #speed function
 		    if badguy_kill == speed_factor:
 		    	if bg_vel < 32:
-			    bg_vel *= 2
+			    bg_vel *= 1.5
+    			    badtimer1 = 15
 			    #get rotation vel
 			    #To understand how the below equation came make time same at halfway
 			    arrow_vel = math.sqrt(4*w*w+h*h)*bg_vel/h #mathematical equation --> more than required speed since components not broken
@@ -167,7 +175,7 @@ def game(screen):
 			badrect[n].bottom=badguys[n][1]
 			badrect[n].left=badguys[n][0]
 			index+=1
-			if badrect[n].bottom>(h-244):
+			if badrect[n].bottom>(h-184):
 			    hit.play()
 			    healthvalue -= random.randint(5,20)
 			    badguys.pop(index)
@@ -204,12 +212,69 @@ def game(screen):
 
 	    elif state == PAUSE:
 	    	pygame.font.init()
+	        for x in range(w/grass.get_width()+1):
+		    for y in range(h/grass.get_height()+1):
+		        screen.blit(grass,(x*100,y*100))
+	        for x in range(10,w,105):
+		    screen.blit(spaceship,(x,h-120))
 		font1 = pygame.font.Font("resources/myfont.ttf", 72)
 		text1 = font1.render("Paused", True, (0, 128, 0))
 		textRect1 = text1.get_rect()
 		textRect1.centerx = screen.get_rect().centerx
 		textRect1.centery = screen.get_rect().centery-72
 	    	screen.blit(text1, textRect1)
+	    elif state == ESCAPE:
+	    	black=(0,0,0)
+		while 1:
+			if state == RUN:
+				break
+			screen.fill(black)
+			pygame.font.init()
+			font1 = pygame.font.Font("resources/myfont.ttf", 72)
+			text1 = font1.render("Boring Game!", True, (255, 255, 255))
+			textRect1 = text1.get_rect()
+			textRect1.centerx = screen.get_rect().centerx
+			font = pygame.font.Font("resources/myfont.ttf", 32)
+			text = font.render("Resume", True, (255, 255, 255))
+			resumeRect = text.get_rect()
+			resumeRect.centerx = screen.get_rect().centerx
+			resumeRect.centery = screen.get_rect().centery-48
+			font2 = pygame.font.Font("resources/myfont.ttf", 32)
+			text2 = font2.render("Restart", True, (255, 255, 255))
+			restartRect = text2.get_rect()
+			restartRect.centerx = screen.get_rect().centerx
+			restartRect.centery = screen.get_rect().centery
+			font3 = pygame.font.Font("resources/myfont.ttf", 32)
+			text3 = font3.render("Exit", True, (255, 255, 255))
+			exitRect = text3.get_rect()
+			exitRect.centerx = screen.get_rect().centerx
+			exitRect.centery = screen.get_rect().centery+48
+			for e in pygame.event.get():
+				if e.type==pygame.QUIT:
+					pygame.quit()
+					exit(0)
+				if e.type is KEYDOWN:
+					if e.key == K_ESCAPE:
+						state = RUN
+					if e.key == K_f:
+	    					if screen.get_flags() & FULLSCREEN:
+							pygame.display.set_mode((w,h))
+	    					else:
+							pygame.display.set_mode((w,h), FULLSCREEN)
+				if e.type==MOUSEBUTTONDOWN:
+					x, y = pygame.mouse.get_pos()
+					if exitRect.collidepoint(x, y):
+						pygame.quit()
+						exit(0)
+					if resumeRect.collidepoint(x, y):
+						state = RUN
+					if restartRect.collidepoint(x, y):
+						exitscreen(screen, True, 0, 0, 0.00)
+			screen.blit(text1,textRect1)
+			screen.blit(text, resumeRect)
+			screen.blit(text2, restartRect)
+			screen.blit(text3, exitRect)
+			pygame.display.flip()
 	    	
 	    #2. Updates the game state
 	    pygame.display.flip()
@@ -228,6 +293,11 @@ def game(screen):
 		        keys[2]=True
 		    elif pygame.key.get_pressed()[pygame.K_d]:
 		        keys[3]=True
+		    if e.key == pygame.K_f:
+    			if screen.get_flags() & FULLSCREEN:
+        			pygame.display.set_mode((w,h))
+    			else:
+        			pygame.display.set_mode((w,h), FULLSCREEN)
 		    if pygame.key.get_pressed()[pygame.K_LEFT]:
                     	rot += 10
         		if rot > 360:
@@ -241,6 +311,8 @@ def game(screen):
 		        	state = PAUSE
 		        else:
 		        	state = RUN
+		    if e.key == pygame.K_ESCAPE:
+	        	state = ESCAPE
 		if e.type == pygame.KEYUP:
 		    if e.key==pygame.K_w:
 		        keys[0]=False
@@ -325,7 +397,9 @@ def win(screen, badguy_kill, accuracy):
 	screen.blit(text, textRect)
 	return
 
-def exitscreen(screen, exitcode, badguy_kill, accuracy):
+def exitscreen(screen, restart,exitcode, badguy_kill, accuracy):
+	if restart:
+		exitcode, badguy_kill, accuracy = game(screen)
 	replay = pygame.image.load("resources/images/replay.png")
 	w, h = pygame.display.get_surface().get_size()
 	if exitcode==0:
@@ -338,24 +412,36 @@ def exitscreen(screen, exitcode, badguy_kill, accuracy):
 			if e.type == pygame.QUIT:
 				pygame.quit()
 				exit(0)
+			if (e.type is KEYDOWN and e.key == K_f):
+    				if screen.get_flags() & FULLSCREEN:
+        				exitscreen(pygame.display.set_mode((w,h)),False,exitcode, badguy_kill, accuracy)
+    				else:
+        				exitscreen(pygame.display.set_mode((w,h), FULLSCREEN), False,exitcode, badguy_kill, accuracy)
+        				
 			if e.type==MOUSEBUTTONDOWN:
 				x, y = pygame.mouse.get_pos()
 				if replayRect.collidepoint(x, y):
-					game(screen)
+					exitscreen(screen, True, exitcode, badguy_kill, accuracy)
 		pygame.display.flip()
 	return
 
 def main():
+	global exitcode
+	global badguy_kill
+	global accuracy
+	exitcode = 0
+	badguy_kill = 0
+	accuracy = 0.00
+
 	#Initialization
 	pygame.init()
 	infoObject = pygame.display.Info()
 	w, h = infoObject.current_w, infoObject.current_h
-	screen = pygame.display.set_mode((w,h))
+	screen = pygame.display.set_mode((w,h), FULLSCREEN)
 	pygame.display.set_caption('Boring Game!')
 	#game
 	start(screen)
-	exitcode, badguy_kill, accuracy = game(screen)
-	exitscreen(screen, exitcode, badguy_kill, accuracy)
+	exitscreen(screen, True,exitcode, badguy_kill, accuracy)
 	return
 
 if __name__ == '__main__':

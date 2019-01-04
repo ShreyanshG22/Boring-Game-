@@ -71,7 +71,7 @@ def accuracymeter(screen, accuracy):
 def game(screen):
 	w, h = pygame.display.get_surface().get_size()
 
-	player = pygame.image.load("resources/images/soldierKV.png")
+	player = pygame.image.load("resources/images/soldier1.png")
 	grass = pygame.image.load("resources/images/grass.jpg")
 	spaceship = pygame.image.load("resources/images/ship.png")
 	arrow = pygame.image.load("resources/images/bulletraja.png")
@@ -152,10 +152,10 @@ def game(screen):
 		    if badguy_kill == speed_factor:
 		    	if bg_vel < 64:
 			    bg_vel *= 1.5#see this too fast
-			    badtimer1 = 0
+			    badtimer1 = 15
 			    #To understand how the below equation came make time same at halfway
 			    arrow_vel = math.sqrt(4*w*w+h*h)*bg_vel/h #mathematical equation --> more than required speed since components not broken
-			    speed_factor -= 5
+			    speed_factor -= 10
 			    speed_factor = badguy_kill + speed_factor
 			
 		    #increase speed of generation
@@ -303,6 +303,20 @@ def game(screen):
 		        	state = RUN
 		    if e.key == pygame.K_ESCAPE:
 	        	state = ESCAPE
+		if e.type == pygame.KEYUP:
+		    if e.key==pygame.K_w:
+		        keys[0]=False
+		    elif e.key==pygame.K_a:
+		        keys[1]=False
+		    elif e.key==pygame.K_s:
+		        keys[2]=False
+		    elif e.key==pygame.K_d:
+		        keys[3]=False
+		if e.type==pygame.MOUSEBUTTONDOWN:
+		    shoot.play()
+		    position=pygame.mouse.get_pos()
+		    acc[1]+=1
+		    arrows.append([math.atan2(position[1]-(playerpos1[1]+32),position[0]-(playerpos1[0]+26)),playerpos1[0]+32,playerpos1[1]+32])
 		    		
 	       #Move player
 		if keys[0]:
