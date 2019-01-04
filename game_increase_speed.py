@@ -103,7 +103,7 @@ def game(screen):
 	badrect=[]
 	healthvalue=194
 	badguy_kill=0
-	speed_factor=20
+	speed_factor=200
 	bg_vel = 2
 	arrow_vel = 10
 	accuracy = 0.0

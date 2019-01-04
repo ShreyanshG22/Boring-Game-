@@ -103,7 +103,7 @@ def game(screen):
 	badrect=[]
 	healthvalue=194
 	badguy_kill=0
-	speed_factor=50
+	speed_factor=200
 	bg_vel = 2
 	arrow_vel = 10
 	accuracy = 0.0
@@ -128,7 +128,7 @@ def game(screen):
 		    for x in range(w/grass.get_width()+1):
 			for y in range(h/grass.get_height()+1):
 			    screen.blit(grass,(x*100,y*100))
-		    for x in range(100,w,105):
+		    for x in range(10,w,105):
 			screen.blit(spaceship,(x,h-120))
 		    screen.blit(playerrot, playerpos1)
 
@@ -313,6 +313,10 @@ def game(screen):
 		        	state = RUN
 		    if e.key == pygame.K_ESCAPE:
 	        	state = ESCAPE
+		    if pygame.key.get_pressed()[pygame.K_SPACE]:
+			    shoot.play()
+			    acc[1]+=1
+			    arrows.append([rot,playerpos1[0]+32,playerpos1[1]+32])
 		if e.type == pygame.KEYUP:
 		    if e.key==pygame.K_w:
 		        keys[0]=False
@@ -322,10 +326,6 @@ def game(screen):
 		        keys[2]=False
 		    elif e.key==pygame.K_d:
 		        keys[3]=False
-		    if e.key==pygame.K_SPACE:
-			    shoot.play()
-			    acc[1]+=1
-			    arrows.append([rot,playerpos1[0]+32,playerpos1[1]+32])
     
 	       #Move player
 		if keys[0]:
